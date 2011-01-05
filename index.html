@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+      <script src="ga.js"></script>
+      <script src="polygon.js"></script>
+    <style type="text/css">
+      * {
+         font-size: 11px;
+         font-family: 'courier';
+         color: #000000;
+      }
+
+      #console {
+         border-style: dashed;
+         border-width: 1px;
+         overflow: auto;
+         width: 400px;
+         height: 100px;
+      }
+
+      #status {
+         text-align: center;
+      }
+    </style>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+  <body>
+      <div style="float: left;">
+          <canvas id="image"></canvas>
+          <div id="console"></div>
+          <button id="stop" type="button" onClick="clearTimeout(mainTimer)">stop</button>
+      </div>
+      <div style="float: left;">
+          <canvas id="render"></canvas>
+          <div id="status"></div>
+      </div>
+  </body>
+
+  <script type="text/javascript">
+    function init(filename) {
+      var image = new Image();
+      image.onload = function() {
+        var canvas = document.getElementById('image');
+        var context = canvas.getContext('2d');
+
+        canvas.width = image.width;
+        canvas.height = image.height;
+        context.drawImage(image, 0, 0, image.width, image.height);
+
+        mainloop();
+      }
+
+      image.src = filename;
+    }
+
+    function draw(image, context) {
+        drawBufferedImage(image, context)
+    }
+
+    function mainloop() {
+        var imgCanvas = document.getElementById('image');
+        var imgContext = imgCanvas.getContext('2d');
+
+        var rdrCanvas = document.getElementById('render');
+        var rdrContext = rdrCanvas.getContext('2d');
+
+        var height = imgCanvas.height;
+        var width = imgCanvas.width;
+
+        rdrCanvas.height = height;
+        rdrCanvas.width = width;
+
+        log('get pixel buffer (width=' + width + ' height=' + height + ")");
+        var pixBuf = imgContext.getImageData(0,0,width,height).data;
+
+        log('seed population');
+        var population = seedPopulation(10, rdrContext, pixBuf);
+        log('new population size: ' + population.length);
+        draw(population[0], rdrContext);
+        generation++;
+
+        document.getElementById('status').innerHTML = 'pop: ' + population.length +
+                                                      ' gen: ' + generation +
+                                                      ' fitness: ' + population[0].fitness;
+
+        mainTimer = setTimeout('mainloop()', 1000);
+    }
+    
+    var generation = 0;
+    log('app started');
+    init('firefox.jpg');
+  </script>
+</html>
