@@ -1,16 +1,16 @@
-  MAX_POLYGONS_PER_IMAGE = 50;
+  MAX_POLYGONS_PER_IMAGE = 25;
+  IMG_HEIGHT = 0;
+  IMG_WIDTH = 0;
 
   function Vertex(x,y) {
     this.x = x;
     this.y = y;
   }
 
-  // TODO: this should take N vertices
   function Polygon() {
-    this.v1;
-    this.v2;
-    this.v3;
+    this.vertices = [];
     this.rgba = '';
+    this.add = function(vertex) {this.vertices.push(vertex)}
   }
 
   function ImageBuffer() {
@@ -19,27 +19,28 @@
     this.add = function(polygon) {this.polygons.push(polygon)}
   }
 
-  function generateVertex(maxWidth,maxHeight) {
-    return new Vertex(rand(maxWidth),rand(maxHeight));
+  function generateVertex() {
+    return new Vertex(rand(IMG_WIDTH),rand(IMG_HEIGHT));
   }
 
-  function generatePolygon(maxWidth,maxHeight) {
+  function generatePolygon() {
     var polygon = new Polygon();
     polygon.rgba = 'rgba(' + rand(255) + ',' + rand(255) + ',' +
                              rand(255) + ',' + Math.random() + ')';
-    polygon.v1 = generateVertex(maxWidth,maxHeight);
-    polygon.v2 = generateVertex(maxWidth,maxHeight);
-    polygon.v3 = generateVertex(maxWidth,maxHeight);
 
-    //log('polygon: ' + polygon.v3);
+    var numVertices = rand(7) + 3; // random 3 to 10 vertices
+    for (var i = 0;i < numVertices;i++) {
+        polygon.add(generateVertex());
+    }
+    
     return polygon;
   }
 
-  function generateImage(maxWidth,maxHeight) {
+  function generateImage() {
     var image = new ImageBuffer();
     for (var i = 0;i < MAX_POLYGONS_PER_IMAGE;i++) {
       //log('add poly');
-      image.add(generatePolygon(maxWidth,maxHeight));
+      image.add(generatePolygon());
     }
     return image;
   }
@@ -50,9 +51,11 @@
 
     context.beginPath();
     context.moveTo();
-    context.lineTo(polygon.v1.x, polygon.v1.y);
-    context.lineTo(polygon.v2.x, polygon.v2.y);
-    context.lineTo(polygon.v3.x, polygon.v3.y);
+
+    var sz = polygon.vertices.length;
+    for (var i = 0;i < sz;i++) {
+      context.lineTo(polygon.vertices[i].x, polygon.vertices[i].y);
+    }
 
     context.fill();
     context.closePath();

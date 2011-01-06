@@ -1,4 +1,3 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
       <script src="ga.js"></script>
@@ -16,9 +15,11 @@
          overflow: auto;
          width: 400px;
          height: 100px;
+         margin-top: 10px;
       }
 
       #status {
+         margin-top: 10px;
          text-align: center;
       }
     </style>
@@ -71,24 +72,35 @@
         rdrCanvas.height = height;
         rdrCanvas.width = width;
 
-        log('get pixel buffer (width=' + width + ' height=' + height + ")");
+        IMG_HEIGHT = height;
+        IMG_WIDTH = width;
+
+        //log('get pixel buffer (width=' + width + ' height=' + height + ")");
         var pixBuf = imgContext.getImageData(0,0,width,height).data;
 
         log('seed population');
-        var population = seedPopulation(10, rdrContext, pixBuf);
+        if (generation == 0) {
+            population = seedPopulation(100, rdrContext, pixBuf);
+        }
+        else {
+            population = replicate(population, rdrContext, pixBuf);
+        }
+        
         log('new population size: ' + population.length);
         draw(population[0], rdrContext);
         generation++;
 
         document.getElementById('status').innerHTML = 'pop: ' + population.length +
                                                       ' gen: ' + generation +
-                                                      ' fitness: ' + population[0].fitness;
+                                                      ' fitness: ' + addCommas(population[0].fitness);
 
-        mainTimer = setTimeout('mainloop()', 1000);
+        mainTimer = setTimeout('mainloop()', 10);
     }
     
     var generation = 0;
+    var population = [];
     log('app started');
-    init('firefox.jpg');
+    //init('firefox.jpg');
+    init('t4color.gif');
   </script>
 </html>
